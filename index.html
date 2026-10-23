@@ -162,7 +162,7 @@ legend{font-weight:600;font-size:.88rem;padding:0 6px}
       <h1>Mes papiers</h1>
       <p class="sub" id="todayLine"></p>
     </div>
-    <button class="icon-btn" id="openSettings" aria-label="Réglages des délais par défaut">
+    <button class="icon-btn" id="openSettings" aria-label="Réglages">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
     </button>
   </header>
@@ -434,14 +434,25 @@ function showForm(existing){
 
 function showSettings(){
   openSheet(`
-    <div class="sheet-head"><div><h2>Délais par défaut</h2><span class="sub">Utilisés par tous les documents sans délais propres.</span></div>
+    <div class="sheet-head"><div><h2>Réglages</h2><span class="sub">Délais par défaut et transfert entre appareils.</span></div>
       <button class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <form id="setForm" novalidate>
       <fieldset><legend>Quand la pastille change</legend>${delayRow("o",settings.orange,"orange")}${delayRow("r",settings.red,"red")}
       <p class="sub" style="margin:0 0 10px;font-size:.85rem">Avant le délai orange, la pastille reste verte. Une fois la date passée, elle reste rouge.</p></fieldset>
       <p class="err" id="setErr"></p>
       <div class="actions"><button type="button" class="btn" data-close>Annuler</button><button type="submit" class="btn primary">Enregistrer les délais</button></div>
-    </form>`);
+    </form>
+    <fieldset style="margin-top:22px"><legend>Transférer vers un autre appareil</legend>
+      <p class="sub" style="margin:0 0 12px;font-size:.85rem">Exportez vos documents dans un fichier, envoyez-le-vous (WhatsApp, mail, Drive…), puis importez-le sur l’autre appareil. Les documents déjà présents sont mis à jour, rien n’est supprimé.</p>
+      <div class="actions" style="justify-content:flex-start;margin-bottom:12px">
+        <button type="button" class="btn" id="exportBtn">Exporter mes documents</button>
+        <button type="button" class="btn" id="importBtn">Importer un fichier</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+      </div>
+    </fieldset>`);
+  $("#exportBtn").onclick=exportData;
+  $("#importBtn").onclick=()=>$("#importFile").click();
+  $("#importFile").onchange=e=>{ const f=e.target.files[0]; if(f) importData(f); e.target.value=""; };
   $("#sheet").querySelectorAll("[data-close]").forEach(b=>b.onclick=closeSheet);
   const f=$("#setForm"); const E=f.elements;
   f.onsubmit=async e=>{
@@ -452,6 +463,39 @@ function showSettings(){
     try{ await backend.saveSettings(); closeSheet(); render(); toast("Délais enregistrés"); }
     catch(ex){ $("#setErr").textContent="Enregistrement impossible. Réessayez."; }
   };
+}
+
+
+async function exportData(){
+  const payload = {app:"mes-papiers", version:1, exportedAt:new Date().toISOString(), settings, docs};
+  const name = "mes-papiers-"+todayStr()+".json";
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  try{
+    const file = new File([blob], name, {type:"application/json"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:"Mes papiers"});
+      return;
+    }
+  }catch(e){ if(e && e.name==="AbortError") return; }
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast("Fichier exporté");
+}
+
+async function importData(file){
+  let data;
+  try{ data = JSON.parse(await file.text()); }catch(e){ toast("Ce fichier n’est pas un export Mes papiers."); return; }
+  if(!data || data.app!=="mes-papiers" || !Array.isArray(data.docs)){ toast("Ce fichier n’est pas un export Mes papiers."); return; }
+  let added=0, updated=0;
+  for(const d of data.docs){
+    if(!d || !d.id || !d.name) continue;
+    const cur = docs.find(x=>x.id===d.id);
+    if(!cur){ await backend.save(d); added++; }
+    else if((d.updatedAt||"") > (cur.updatedAt||"")){ await backend.save(d); updated++; }
+  }
+  if(data.settings && data.settings.orange && data.settings.red){ settings={orange:data.settings.orange, red:data.settings.red}; await backend.saveSettings(); }
+  closeSheet(); render();
+  toast(added+" ajouté(s), "+updated+" mis à jour");
 }
 
 let toastT;
