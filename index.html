@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d3b3a">
+<title>Mes papiers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+  --paper:#eef0ea;
+  --card:#fbfbf8;
+  --ink:#1c2626;
+  --muted:#5f6b69;
+  --line:#d6dad2;
+  --brand:#1d3b3a;
+  --brand-ink:#f3f5ef;
+  --red:#c8372d;
+  --orange:#e08a1e;
+  --green:#2f8f5b;
+  --red-soft:#f6dcd8;
+  --orange-soft:#f8e6cc;
+  --green-soft:#d9eee1;
+  --field:#ffffff;
+  --shadow:0 1px 0 rgba(28,38,38,.06),0 8px 24px -12px rgba(28,38,38,.18);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#121817;--card:#1a2221;--ink:#e7ece8;--muted:#9aa7a4;--line:#2b3634;
+    --brand:#8fc3b6;--brand-ink:#0f1716;--field:#141b1a;
+    --red:#ef6a5f;--orange:#f2a74b;--green:#5cc28a;
+    --red-soft:#3a1f1c;--orange-soft:#3a2b17;--green-soft:#1a3326;
+    --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#121817;--card:#1a2221;--ink:#e7ece8;--muted:#9aa7a4;--line:#2b3634;
+  --brand:#8fc3b6;--brand-ink:#0f1716;--field:#141b1a;
+  --red:#ef6a5f;--orange:#f2a74b;--green:#5cc28a;
+  --red-soft:#3a1f1c;--orange-soft:#3a2b17;--green-soft:#1a3326;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:20px 18px 120px}
+
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:8px 0 18px}
+h1{font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:clamp(2rem,7vw,2.8rem);line-height:1;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:6px 0 0;font-size:.95rem}
+.icon-btn{border:1px solid var(--line);background:var(--card);border-radius:12px;width:44px;height:44px;display:grid;place-items:center;flex:none}
+.icon-btn svg{width:22px;height:22px}
+
+/* signal: the three counters */
+.signal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.sig{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;text-align:left;display:flex;align-items:center;gap:12px;transition:border-color .15s,background .15s}
+.sig .n{font-family:"Young Serif",Georgia,serif;font-size:1.7rem;line-height:1}
+.sig .l{font-size:.82rem;color:var(--muted);line-height:1.2}
+.sig[aria-pressed="true"]{border-color:var(--ink)}
+.sig[data-s="red"][aria-pressed="true"]{background:var(--red-soft)}
+.sig[data-s="orange"][aria-pressed="true"]{background:var(--orange-soft)}
+.sig[data-s="green"][aria-pressed="true"]{background:var(--green-soft)}
+
+.dot{width:18px;height:18px;border-radius:50%;flex:none;position:relative}
+.dot.red{background:var(--red);box-shadow:0 0 0 4px var(--red-soft)}
+.dot.orange{background:var(--orange);box-shadow:0 0 0 4px var(--orange-soft)}
+.dot.green{background:var(--green);box-shadow:0 0 0 4px var(--green-soft)}
+.dot.red.pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--red);animation:ping 1.8s ease-out infinite}
+@keyframes ping{from{transform:scale(.8);opacity:.8}to{transform:scale(1.8);opacity:0}}
+@media (prefers-reduced-motion:reduce){.dot.red.pulse::after{animation:none;display:none}}
+
+.search{width:100%;border:1px solid var(--line);background:var(--field);border-radius:12px;padding:11px 14px;margin-bottom:14px}
+
+.list{display:flex;flex-direction:column;gap:8px;padding:0;margin:0;list-style:none}
+.row{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.row .main{flex:1;min-width:0}
+.row .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .meta{font-size:.86rem;color:var(--muted)}
+.row .when{font-size:.86rem;text-align:right;flex:none;max-width:42%}
+.when.red{color:var(--red);font-weight:600}
+.when.orange{color:var(--orange);font-weight:600}
+.when.green{color:var(--muted)}
+.group-title{font-size:.85rem;color:var(--muted);margin:18px 2px 6px;font-weight:600}
+
+.empty{text-align:center;padding:48px 20px;border:1.5px dashed var(--line);border-radius:18px;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-size:1.1rem;margin-bottom:6px}
+
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--brand);color:var(--brand-ink);border:0;border-radius:999px;padding:14px 24px;font-weight:600;box-shadow:0 10px 30px -10px rgba(0,0,0,.45);display:flex;align-items:center;gap:8px;z-index:5}
+.fab svg{width:20px;height:20px}
+
+.note{font-size:.82rem;color:var(--muted);margin-top:18px;text-align:center}
+
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(10,16,16,.45);display:none;z-index:20;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.sheet{background:var(--paper);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+@media (min-width:700px){.overlay{align-items:center}.sheet{border-radius:22px;max-height:88vh}}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sheet h2{font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:1.6rem;margin:0 0 4px}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label,.lbl{font-size:.88rem;font-weight:600}
+.field small{color:var(--muted);font-size:.8rem}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:10px 12px;width:100%}
+.field textarea{min-height:84px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.two{grid-template-columns:1fr}}
+fieldset{border:1px solid var(--line);border-radius:14px;padding:12px 14px 4px;margin:4px 0 16px;background:var(--card)}
+legend{font-weight:600;font-size:.88rem;padding:0 6px}
+.delay{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.delay input{width:72px;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:8px 10px}
+.delay select{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:8px 10px}
+.switch{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:.92rem}
+.switch input{width:20px;height:20px;accent-color:var(--brand)}
+.err{color:var(--red);font-size:.85rem;margin:-4px 0 10px;min-height:1em}
+.actions{display:flex;gap:10px;justify-content:space-between;margin-top:8px;flex-wrap:wrap}
+.btn{border-radius:12px;padding:11px 18px;font-weight:600;border:1px solid var(--line);background:var(--card)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.danger{color:var(--red);border-color:transparent;background:transparent;padding-left:4px}
+
+/* detail */
+.status-band{display:flex;align-items:center;gap:14px;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.status-band.red{background:var(--red-soft)}
+.status-band.orange{background:var(--orange-soft)}
+.status-band.green{background:var(--green-soft)}
+.status-band b{display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0 0 14px}
+.kv dt{color:var(--muted);font-size:.88rem}
+.kv dd{margin:0;word-break:break-word}
+.notes{white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 16px}
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.show{opacity:1}
+.loading{padding:60px 0;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Mes papiers</h1>
+      <p class="sub" id="todayLine"></p>
+    </div>
+    <button class="icon-btn" id="openSettings" aria-label="Réglages des délais par défaut">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    </button>
+  </header>
+
+  <div class="signal" role="group" aria-label="Filtrer par pastille">
+    <button class="sig" data-s="red" aria-pressed="false"><span class="dot red"></span><span><span class="n" id="cRed">0</span><br><span class="l">À refaire</span></span></button>
+    <button class="sig" data-s="orange" aria-pressed="false"><span class="dot orange"></span><span><span class="n" id="cOrange">0</span><br><span class="l">Bientôt</span></span></button>
+    <button class="sig" data-s="green" aria-pressed="false"><span class="dot green"></span><span><span class="n" id="cGreen">0</span><br><span class="l">En règle</span></span></button>
+  </div>
+
+  <input class="search" id="search" type="search" placeholder="Chercher un document…" aria-label="Chercher un document">
+
+  <div id="listArea"><div class="loading">Chargement de vos documents…</div></div>
+  <p class="note" id="storageNote"></p>
+</div>
+
+<button class="fab" id="addBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ajouter un document</button>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+
+const CATEGORIES = ["Identité","Transport","Santé","Banque & argent","Travail & études","Logement","Assurance","Autre"];
+const UNITS = {d:"jour(s)",w:"semaine(s)",m:"mois"};
+const DEFAULT_SETTINGS = {orange:{n:3,u:"m"}, red:{n:1,u:"m"}};
+const LS_DOCS = "mespapiers.docs.v1", LS_SET = "mespapiers.settings.v1";
+
+let docs = [];
+let settings = structuredClone(DEFAULT_SETTINGS);
+let filter = null;
+let query = "";
+let backend = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- dates ---------- */
+function todayStr(){const d=new Date();return iso(d)}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function parse(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+function minus(dateStr, delay){
+  const d = parse(dateStr); const n = Number(delay.n)||0;
+  if(delay.u==="d") d.setDate(d.getDate()-n);
+  else if(delay.u==="w") d.setDate(d.getDate()-7*n);
+  else { const day=d.getDate(); d.setDate(1); d.setMonth(d.getMonth()-n); const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); d.setDate(Math.min(day,last)); }
+  return iso(d);
+}
+function toDays(delay){const n=Number(delay.n)||0;return delay.u==="d"?n:delay.u==="w"?n*7:n*30.4}
+function daysBetween(a,b){return Math.round((parse(b)-parse(a))/86400000)}
+function fmtDate(s){if(!s)return"—";return parse(s).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}
+function fmtDelay(dl){return dl.n+" "+(dl.u==="m"?"mois":UNITS[dl.u].replace("(s)",Number(dl.n)>1?"s":""))}
+function humanSpan(days){
+  const a=Math.abs(days);
+  if(a===0) return "aujourd’hui";
+  if(a<14) return a+" jour"+(a>1?"s":"");
+  if(a<60) return Math.round(a/7)+" semaines";
+  if(a<730) return Math.round(a/30.4)+" mois";
+  const y=Math.floor(a/365.25), m=Math.round((a-y*365.25)/30.4);
+  return y+" an"+(y>1?"s":"")+(m>0&&m<12?" et "+m+" mois":"");
+}
+
+function delaysFor(doc){return doc.customDelays ? {orange:doc.orange, red:doc.red} : settings}
+
+function statusOf(doc){
+  const t = todayStr();
+  if(!doc.expires) return {color:"green", label:"Sans date limite", short:"Permanent", days:Infinity};
+  const dl = delaysFor(doc);
+  const days = daysBetween(t, doc.expires);
+  const redFrom = minus(doc.expires, dl.red), orangeFrom = minus(doc.expires, dl.orange);
+  if(days < 0) return {color:"red", label:"Expiré depuis "+humanSpan(days), short:"Expiré", days, expired:true};
+  if(days === 0) return {color:"red", label:"Expire aujourd’hui", short:"Aujourd’hui", days};
+  if(t >= redFrom) return {color:"red", label:"Expire dans "+humanSpan(days), short:"Dans "+humanSpan(days), days};
+  if(t >= orangeFrom) return {color:"orange", label:"Expire dans "+humanSpan(days), short:"Dans "+humanSpan(days), days};
+  return {color:"green", label:"Valable encore "+humanSpan(days), short:"Encore "+humanSpan(days), days, orangeFrom};
+}
+
+/* ---------- storage ---------- */
+function uid(){return (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2))}
+
+const localBackend = {
+  kind:"local",
+  async start(onDocs,onSettings){
+    try{docs=JSON.parse(localStorage.getItem(LS_DOCS)||"[]")}catch(e){docs=[]}
+    try{const s=JSON.parse(localStorage.getItem(LS_SET)||"null"); if(s) settings=s}catch(e){}
+    onSettings(); onDocs();
+  },
+  persist(){try{localStorage.setItem(LS_DOCS,JSON.stringify(docs));localStorage.setItem(LS_SET,JSON.stringify(settings))}catch(e){}},
+  async save(doc){const i=docs.findIndex(d=>d.id===doc.id); if(i>=0) docs[i]=doc; else docs.push(doc); this.persist(); render();},
+  async remove(id){docs=docs.filter(d=>d.id!==id); this.persist(); render();},
+  async saveSettings(){this.persist(); render();}
+};
+
+function cloudBackend(db, userId){
+  const root = db.doc("data/users/"+userId+"/vault");
+  const col = root.collection("docs");
+  const setRef = db.doc("data/users/"+userId+"/settings");
+  return {
+    kind:"cloud",
+    async start(onDocs,onSettings){
+      let first = true;
+      col.onSnapshot(async snap=>{
+        docs = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
+        if(first){ first=false; await migrateLocal(snap.empty, this); }
+        onDocs();
+      }, e=>{ toast("Synchronisation interrompue. Rechargez la page."); });
+      setRef.onSnapshot(snap=>{ if(snap.exists){ const v=snap.data(); if(v&&v.orange&&v.red) settings={orange:v.orange,red:v.red}; } onSettings(); }, ()=>{});
+    },
+    async save(doc){const {id,...body}=doc; await col.doc(id).set(body);},
+    async remove(id){await col.doc(id).delete();},
+    async saveSettings(){await setRef.set({orange:settings.orange, red:settings.red});}
+  };
+}
+
+async function migrateLocal(isEmpty, be){
+  if(!isEmpty) return;
+  let old=[]; try{old=JSON.parse(localStorage.getItem(LS_DOCS)||"[]")}catch(e){}
+  for(const d of old){ try{ await be.save(d); }catch(e){} }
+  if(old.length) toast(old.length+" document(s) récupéré(s) de cet appareil");
+}
+
+async function initBackend(){
+  let db=null, user=null;
+  if(window.claude && typeof window.claude.use==="function"){
+    try{ [db,user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]); }catch(e){}
+  }
+  let id=null;
+  if(db && user){ try{ id = await user.id(); }catch(e){} }
+  backend = (db && id) ? cloudBackend(db,id) : localBackend;
+  $("#storageNote").textContent = backend.kind==="cloud"
+    ? "Synchronisé sur votre compte : la même liste sur téléphone et ordinateur."
+    : "Enregistré sur cet appareil uniquement.";
+  await backend.start(render, render);
+}
+
+/* ---------- render ---------- */
+function render(){
+  const t = todayStr();
+  $("#todayLine").textContent = docs.length
+    ? docs.length+" document"+(docs.length>1?"s":"")+" · "+parse(t).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})
+    : "Votre dossier de départ";
+  const withS = docs.map(d=>({d, s:statusOf(d)}));
+  const counts={red:0,orange:0,green:0};
+  withS.forEach(x=>counts[x.s.color]++);
+  $("#cRed").textContent=counts.red; $("#cOrange").textContent=counts.orange; $("#cGreen").textContent=counts.green;
+  document.querySelectorAll(".sig").forEach(b=>b.setAttribute("aria-pressed", String(filter===b.dataset.s)));
+
+  const area = $("#listArea");
+  if(!docs.length){
+    area.innerHTML = '<div class="empty"><strong>Aucun document pour l’instant</strong>Ajoutez votre passeport, votre permis ou votre carte vitale pour suivre leurs dates de validité.</div>';
+    return;
+  }
+  const q = query.trim().toLowerCase();
+  let rows = withS.filter(x=>(!filter||x.s.color===filter) && (!q || [x.d.name,x.d.category,x.d.number,x.d.notes,x.d.location].join(" ").toLowerCase().includes(q)));
+  const rank={red:0,orange:1,green:2};
+  rows.sort((a,b)=>rank[a.s.color]-rank[b.s.color] || a.s.days-b.s.days || a.d.name.localeCompare(b.d.name,"fr"));
+  if(!rows.length){ area.innerHTML='<div class="empty"><strong>Aucun résultat</strong>Changez la recherche ou retirez le filtre de couleur.</div>'; return; }
+
+  area.innerHTML = '<ul class="list">'+rows.map(({d,s})=>`
+    <li><button class="row" data-id="${esc(d.id)}">
+      <span class="dot ${s.color} ${s.expired?"pulse":""}" aria-hidden="true"></span>
+      <span class="main"><span class="name">${esc(d.name)}</span><br><span class="meta">${esc(d.category||"Autre")}${d.expires?" · jusqu’au "+esc(fmtDate(d.expires)):""}</span></span>
+      <span class="when ${s.color}">${esc(s.short)}</span>
+    </button></li>`).join("")+'</ul>';
+}
+
+/* ---------- sheet ---------- */
+function openSheet(html){ $("#sheet").innerHTML=html; $("#overlay").classList.add("open"); $("#overlay").setAttribute("aria-hidden","false"); const f=$("#sheet").querySelector("input,button"); f&&f.focus(); }
+function closeSheet(){ $("#overlay").classList.remove("open"); $("#overlay").setAttribute("aria-hidden","true"); }
+$("#overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeSheet(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+
+function delayRow(prefix, dl, color){
+  return `<div class="delay"><span class="dot ${color}" aria-hidden="true"></span>
+    <span>${color==="orange"?"Orange":"Rouge"} à</span>
+    <input type="number" min="0" max="999" inputmode="numeric" name="${prefix}N" value="${esc(dl.n)}" aria-label="Nombre">
+    <select name="${prefix}U" aria-label="Unité">${Object.entries(UNITS).map(([k,v])=>`<option value="${k}" ${dl.u===k?"selected":""}>${v}</option>`).join("")}</select>
+    <span>avant la date limite</span></div>`;
+}
+
+function showDetail(id){
+  const d = docs.find(x=>x.id===id); if(!d) return;
+  const s = statusOf(d); const dl = delaysFor(d);
+  let rule = "";
+  if(d.expires){
+    rule = `Orange à partir du ${fmtDate(minus(d.expires,dl.orange))}, rouge à partir du ${fmtDate(minus(d.expires,dl.red))}${d.customDelays?" (délais propres à ce document)":" (délais par défaut)"}.`;
+  }
+  openSheet(`
+    <div class="sheet-head"><div><h2>${esc(d.name)}</h2><span class="sub">${esc(d.category||"Autre")}</span></div>
+      <button class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="status-band ${s.color}"><span class="dot ${s.color}"></span><span><b>${esc(s.label)}</b><small>${esc(rule)}</small></span></div>
+    <dl class="kv">
+      <dt>Délivré le</dt><dd>${esc(fmtDate(d.issued))}</dd>
+      <dt>À refaire avant</dt><dd>${d.expires?esc(fmtDate(d.expires)):"Pas de date limite"}</dd>
+      ${d.number?`<dt>Numéro</dt><dd>${esc(d.number)}</dd>`:""}
+      ${d.issuer?`<dt>Délivré par</dt><dd>${esc(d.issuer)}</dd>`:""}
+      ${d.location?`<dt>Rangé où</dt><dd>${esc(d.location)}</dd>`:""}
+      ${d.renewal?`<dt>Pour le refaire</dt><dd>${esc(d.renewal)}</dd>`:""}
+    </dl>
+    ${d.notes?`<div class="lbl" style="margin-bottom:6px">Infos pratiques</div><p class="notes">${esc(d.notes)}</p>`:""}
+    <div class="actions"><button class="btn danger" data-del>Supprimer</button><button class="btn primary" data-edit>Modifier</button></div>`);
+  $("#sheet [data-close]").onclick=closeSheet;
+  $("#sheet [data-edit]").onclick=()=>showForm(d);
+  $("#sheet [data-del]").onclick=async()=>{
+    if(!confirm("Supprimer « "+d.name+" » ?")) return;
+    try{ await backend.remove(d.id); closeSheet(); toast("Document supprimé"); }catch(e){ toast("Suppression impossible. Réessayez."); }
+  };
+}
+
+function showForm(existing){
+  const d = existing || {id:null,name:"",category:"Identité",number:"",issuer:"",location:"",renewal:"",notes:"",issued:"",expires:"",customDelays:false,orange:structuredClone(settings.orange),red:structuredClone(settings.red)};
+  const o = d.orange || settings.orange, r = d.red || settings.red;
+  openSheet(`
+    <div class="sheet-head"><h2>${existing?"Modifier":"Nouveau document"}</h2>
+      <button class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <form id="docForm" novalidate>
+      <div class="field"><label for="f-name">Nom du document</label><input id="f-name" name="name" required maxlength="80" placeholder="Passeport, permis de conduire…" value="${esc(d.name)}"></div>
+      <div class="two">
+        <div class="field"><label for="f-cat">Catégorie</label><select id="f-cat" name="category">${CATEGORIES.map(c=>`<option ${d.category===c?"selected":""}>${c}</option>`).join("")}</select></div>
+        <div class="field"><label for="f-num">Numéro</label><input id="f-num" name="number" maxlength="60" value="${esc(d.number)}"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="f-issued">Date de délivrance</label><input id="f-issued" type="date" name="issued" value="${esc(d.issued)}"></div>
+        <div class="field"><label for="f-exp">À refaire avant le</label><input id="f-exp" type="date" name="expires" value="${esc(d.expires)}"><small>Laisser vide si le document n’expire pas.</small></div>
+      </div>
+      <fieldset>
+        <legend>Pastille</legend>
+        <label class="switch"><input type="checkbox" name="customDelays" ${d.customDelays?"checked":""}> Délais propres à ce document</label>
+        <div id="customBox" ${d.customDelays?"":"hidden"}>${delayRow("o",o,"orange")}${delayRow("r",r,"red")}</div>
+        <p class="sub" id="defaultHint" ${d.customDelays?"hidden":""} style="margin:0 0 10px;font-size:.85rem">Délais par défaut : orange à ${esc(fmtDelay(settings.orange))}, rouge à ${esc(fmtDelay(settings.red))} avant la date limite.</p>
+      </fieldset>
+      <div class="two">
+        <div class="field"><label for="f-iss">Délivré par</label><input id="f-iss" name="issuer" maxlength="80" placeholder="Préfecture, mairie…" value="${esc(d.issuer)}"></div>
+        <div class="field"><label for="f-loc">Rangé où</label><input id="f-loc" name="location" maxlength="80" placeholder="Pochette bleue, scan Drive…" value="${esc(d.location)}"></div>
+      </div>
+      <div class="field"><label for="f-ren">Pour le refaire</label><input id="f-ren" name="renewal" maxlength="160" placeholder="ANTS en ligne, délai ~6 semaines…" value="${esc(d.renewal)}"></div>
+      <div class="field"><label for="f-notes">Infos pratiques</label><textarea id="f-notes" name="notes" maxlength="2000" placeholder="Pièces à fournir, contact, coût…">${esc(d.notes)}</textarea></div>
+      <p class="err" id="formErr"></p>
+      <div class="actions"><button type="button" class="btn" data-close>Annuler</button><button type="submit" class="btn primary">${existing?"Enregistrer":"Ajouter le document"}</button></div>
+    </form>`);
+  const form = $("#docForm"); const F = form.elements;
+  $("#sheet").querySelectorAll("[data-close]").forEach(b=>b.onclick=closeSheet);
+  F.customDelays.onchange = ()=>{ $("#customBox").hidden=!F.customDelays.checked; $("#defaultHint").hidden=F.customDelays.checked; };
+  form.onsubmit = async e=>{
+    e.preventDefault();
+    const err = $("#formErr"); err.textContent="";
+    const name=F.name.value.trim();
+    if(!name){ err.textContent="Donnez un nom au document."; F.name.focus(); return; }
+    if(F.issued.value && F.expires.value && F.expires.value < F.issued.value){ err.textContent="La date à laquelle refaire le document est antérieure à sa délivrance."; return; }
+    const custom = F.customDelays.checked;
+    const oD = custom ? {n:Math.max(0,parseInt(F.oN.value,10)||0), u:F.oU.value} : (d.orange||settings.orange);
+    const rD = custom ? {n:Math.max(0,parseInt(F.rN.value,10)||0), u:F.rU.value} : (d.red||settings.red);
+    if(custom && toDays(rD) > toDays(oD)){ err.textContent="Le délai rouge doit être plus court que le délai orange."; return; }
+    const doc = {
+      id: d.id || uid(), name, category: F.category.value, number: F.number.value.trim(),
+      issued: F.issued.value, expires: F.expires.value, customDelays: custom, orange:oD, red:rD,
+      issuer: F.issuer.value.trim(), location: F.location.value.trim(), renewal: F.renewal.value.trim(),
+      notes: F.notes.value.trim(), createdAt: d.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString()
+    };
+    const btn=form.querySelector('[type="submit"]'); btn.disabled=true;
+    try{ await backend.save(doc); closeSheet(); toast(existing?"Document enregistré":"Document ajouté"); }
+    catch(ex){ err.textContent="Enregistrement impossible. Vérifiez la connexion et réessayez."; btn.disabled=false; }
+  };
+}
+
+function showSettings(){
+  openSheet(`
+    <div class="sheet-head"><div><h2>Délais par défaut</h2><span class="sub">Utilisés par tous les documents sans délais propres.</span></div>
+      <button class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <form id="setForm" novalidate>
+      <fieldset><legend>Quand la pastille change</legend>${delayRow("o",settings.orange,"orange")}${delayRow("r",settings.red,"red")}
+      <p class="sub" style="margin:0 0 10px;font-size:.85rem">Avant le délai orange, la pastille reste verte. Une fois la date passée, elle reste rouge.</p></fieldset>
+      <p class="err" id="setErr"></p>
+      <div class="actions"><button type="button" class="btn" data-close>Annuler</button><button type="submit" class="btn primary">Enregistrer les délais</button></div>
+    </form>`);
+  $("#sheet").querySelectorAll("[data-close]").forEach(b=>b.onclick=closeSheet);
+  const f=$("#setForm"); const E=f.elements;
+  f.onsubmit=async e=>{
+    e.preventDefault();
+    const o={n:Math.max(0,parseInt(E.oN.value,10)||0),u:E.oU.value}, r={n:Math.max(0,parseInt(E.rN.value,10)||0),u:E.rU.value};
+    if(toDays(r)>toDays(o)){ $("#setErr").textContent="Le délai rouge doit être plus court que le délai orange."; return; }
+    settings={orange:o,red:r};
+    try{ await backend.saveSettings(); closeSheet(); render(); toast("Délais enregistrés"); }
+    catch(ex){ $("#setErr").textContent="Enregistrement impossible. Réessayez."; }
+  };
+}
+
+let toastT;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2200)}
+
+/* ---------- events ---------- */
+$("#addBtn").onclick=()=>showForm(null);
+$("#openSettings").onclick=showSettings;
+$("#search").addEventListener("input",e=>{query=e.target.value;render()});
+document.querySelectorAll(".sig").forEach(b=>b.onclick=()=>{filter = filter===b.dataset.s ? null : b.dataset.s; render();});
+$("#listArea").addEventListener("click",e=>{const r=e.target.closest(".row"); if(r) showDetail(r.dataset.id);});
+// re-evaluate colors when the day changes while the page stays open
+setInterval(()=>{ if(document.visibilityState==="visible") render(); }, 60*60*1000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") render(); });
+
+initBackend();
+})();
+</script>
+</body>
+</html>
