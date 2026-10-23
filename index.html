@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1d3b3a">
 <title>Mes papiers</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mes papiers">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -64,9 +70,13 @@ h1{font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:clamp(2rem,
 
 /* signal: the three counters */
 .signal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.sig{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;text-align:left;display:flex;align-items:center;gap:12px;transition:border-color .15s,background .15s}
-.sig .n{font-family:"Young Serif",Georgia,serif;font-size:1.7rem;line-height:1}
-.sig .l{font-size:.82rem;color:var(--muted);line-height:1.2}
+.sig{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 12px 11px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;transition:border-color .15s,background .15s}
+.sig .top{display:flex;align-items:center;gap:10px}
+.sig .dot{width:12px;height:12px}
+.sig .dot.red{box-shadow:0 0 0 3px var(--red-soft)}.sig .dot.orange{box-shadow:0 0 0 3px var(--orange-soft)}.sig .dot.green{box-shadow:0 0 0 3px var(--green-soft)}
+.sig .n{font-family:"Young Serif",Georgia,serif;font-size:1.65rem;line-height:1;font-variant-numeric:tabular-nums}
+.sig .l{font-size:.82rem;font-weight:600;color:var(--muted);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media (min-width:560px){.sig{flex-direction:row;align-items:center;gap:12px;padding:14px 16px}.sig .top{gap:12px}.sig .l{font-size:.9rem}}
 .sig[aria-pressed="true"]{border-color:var(--ink)}
 .sig[data-s="red"][aria-pressed="true"]{background:var(--red-soft)}
 .sig[data-s="orange"][aria-pressed="true"]{background:var(--orange-soft)}
@@ -96,8 +106,8 @@ h1{font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:clamp(2rem,
 .empty{text-align:center;padding:48px 20px;border:1.5px dashed var(--line);border-radius:18px;color:var(--muted)}
 .empty strong{display:block;color:var(--ink);font-size:1.1rem;margin-bottom:6px}
 
-.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--brand);color:var(--brand-ink);border:0;border-radius:999px;padding:14px 24px;font-weight:600;box-shadow:0 10px 30px -10px rgba(0,0,0,.45);display:flex;align-items:center;gap:8px;z-index:5}
-.fab svg{width:20px;height:20px}
+.fab{white-space:nowrap;font-size:1rem;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--brand);color:var(--brand-ink);border:0;border-radius:999px;padding:14px 24px;font-weight:600;box-shadow:0 10px 30px -10px rgba(0,0,0,.45);display:flex;align-items:center;gap:8px;z-index:5}
+.fab svg{width:20px;height:20px;flex:none}
 
 .note{font-size:.82rem;color:var(--muted);margin-top:18px;text-align:center}
 
@@ -158,9 +168,9 @@ legend{font-weight:600;font-size:.88rem;padding:0 6px}
   </header>
 
   <div class="signal" role="group" aria-label="Filtrer par pastille">
-    <button class="sig" data-s="red" aria-pressed="false"><span class="dot red"></span><span><span class="n" id="cRed">0</span><br><span class="l">À refaire</span></span></button>
-    <button class="sig" data-s="orange" aria-pressed="false"><span class="dot orange"></span><span><span class="n" id="cOrange">0</span><br><span class="l">Bientôt</span></span></button>
-    <button class="sig" data-s="green" aria-pressed="false"><span class="dot green"></span><span><span class="n" id="cGreen">0</span><br><span class="l">En règle</span></span></button>
+    <button class="sig" data-s="red" aria-pressed="false"><span class="top"><span class="dot red"></span><span class="n" id="cRed">0</span></span><span class="l">À refaire</span></button>
+    <button class="sig" data-s="orange" aria-pressed="false"><span class="top"><span class="dot orange"></span><span class="n" id="cOrange">0</span></span><span class="l">Bientôt</span></button>
+    <button class="sig" data-s="green" aria-pressed="false"><span class="top"><span class="dot green"></span><span class="n" id="cGreen">0</span></span><span class="l">En règle</span></button>
   </div>
 
   <input class="search" id="search" type="search" placeholder="Chercher un document…" aria-label="Chercher un document">
@@ -458,6 +468,10 @@ setInterval(()=>{ if(document.visibilityState==="visible") render(); }, 60*60*10
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") render(); });
 
 initBackend();
+
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+}
 })();
 </script>
 </body>
